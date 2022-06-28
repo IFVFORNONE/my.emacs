@@ -6,12 +6,12 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
-   ["black" "red3" "ForestGreen" "yellow3" "medium-blue" "magenta3" "DeepSkyBlue" "gray50"])
+   ["black" "red3" "ForestGreen" "yellow3" "medium-blue" "magenta3" "DeepSkyBlue" "gray60"])
  '(custom-enabled-themes '(deeper-blue))
  '(ansi-color-for-comint-mode-on)
  
  '(global-hl-line-mode 1)
- '(set-face-background 'hi-line "navy")
+ '(set-face-background 'hi-line "yellow")
  '(global-linum-mode 1)
  '(make-backup-files nil)
 
@@ -53,7 +53,11 @@
 (setq split-height-threshold nil)
 
 (setq c-default-style "linux"
-      c-basic-offset 4)
+      c-basic-offset 4
+      tab-width 4
+      indent-tabs-mode nil)
+
+(c-set-offset 'case-label '+)
 
 (setq auto-mode-alist
       (append
@@ -67,32 +71,38 @@
 	 ("\\.md$" . org-mode)
 	 ) auto-mode-alist))
 
+(defun switch-header-source-file ()
+  (interactive)
+  (let (file-name (buffer-file-name))
+    (if (string-match "\\.cpp$" file-name)
+        (find-file (replace-regexp-in-string "\\.cpp$" "\\.h$" file-name)))
+    (if (string-match "\\.h$" file-name)
+        (find-file (replace-regexp-in-string "\\.h$" "\\.cpp$" file-name)))
+    ))
+(global-set-key [f12] 'switch-header-source-file)
+     
+(global-set-key (kbd "M-p") 'backward-paragraph)
+(global-set-key (kbd "M-n") 'forward-paragraph)
+
 (add-hook 'c++-mode-hook
           (lambda ()
-           (font-lock-add-keywords nil
-            '(("\\<\\(public slots\\):" 1
-               font-lock-keywords-face t))))
+            (font-lock-add-keywords nil
+                                    '(("\\<\\(public slots\\):" 1
+                                       font-lock-keywords-face t))))
           (lambda ()
-           (font-lock-add-keywords nil
-            '(("\\<\\(singals\\):" 1
-               font-lock-keywords-face t))))
+            (font-lock-add-keywords nil
+                                    '(("\\<\\(singals\\):" 1
+                                       font-lock-keywords-face t))))
 	  (lambda ()
-           (font-lock-add-keywords nil
-            '(("\\<\\(emit\\):" 1
-               font-lock-keywords-face t)))))
+            (font-lock-add-keywords nil
+                                    '(("\\<\\(emit\\):" 1
+                                       font-lock-keywords-face t)))))
 
-(require 'package)
-(add-to-list 'package-archives
-	     '("melpa" . "https://elpa.emacs-china.org/melpa/"))
-(add-to-list 'package-archives
-	     '("gnu" . "http://elpa.emacs-china.org/gnu/"))
-(package-initialize)
-
-(defun metax-header-format ()
+(defun metax-header ()
   "Format the given file as a header file"
   (interactive)
   (setq base_file_name (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
-  (insert "/* =============================================================================\n\n")
+  (insert "/* ==========================================================================\n\n")
   (insert "    $File: ")
   (insert base_file_name)
   (insert ".h  $\n")
@@ -101,7 +111,7 @@
   (insert "    $Author: Meta-X  $\n")
   (insert "    $Notice: (C) Copyright 2022 by Meta-X. All Rights Reserved.  $\n")  
   (insert "\n")
-  (insert "   ============================================================================= */\n\n")
+  (insert "   ========================================================================== */\n\n")
   (insert "#if !defined(")
   (push-mark)
   (insert base_file_name)
@@ -125,7 +135,7 @@
   "Format the given file as a source file"
   (interactive)
   (setq base_file_name (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
-  (insert "/* =============================================================================\n\n")
+  (insert "/* ==========================================================================\n\n")
   (insert "    $File: ")
   (insert base_file_name)
   (insert ".cpp  $\n")
@@ -134,13 +144,13 @@
   (insert "    $Author: Meta-X  $\n")
   (insert "    $Notice: (C) Copyright 2022 by Meta-X. All Rights Reserved.  $\n")  
   (insert "\n")
-  (insert "   ============================================================================= */\n\n"))
+  (insert "   ========================================================================== */\n\n"))
 
 (defun metax-header-info ()
   "Format the given file as a source file"
   (interactive)
   (setq base_file_name (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
-  (insert "/* =============================================================================\n\n")
+  (insert "/* ==========================================================================\n\n")
   (insert "    $File: ")
   (insert base_file_name)
   (insert ".h  $\n")
@@ -149,13 +159,12 @@
   (insert "    $Author: Meta-X  $\n")
   (insert "    $Notice: (C) Copyright 2022 by Meta-X. All Rights Reserved.  $\n")  
   (insert "\n")
-  (insert "   ============================================================================= */\n\n"))
-
+  (insert "   ========================================================================== */\n\n"))
 
 (defun metax-function-info ()
   "Format the function comment"
   (interactive)
-  (insert "/* =============================================================================\n\n")
+  (insert "/* ==========================================================================\n\n")
   (insert "    $Function:   $\n")
   (insert "    $Input:   $\n")
   (insert "    $Output:   $\n")
